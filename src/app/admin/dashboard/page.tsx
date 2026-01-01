@@ -5,12 +5,19 @@ import { MotionWrapper, FadeIn, ScaleIn } from "@/components/MotionWrapper";
 import { motion } from "framer-motion";
 
 
+import { SparkLine } from "@/components/AnalyticsCharts";
+
+// ... existing imports
+
 export default function AdminDashboard() {
     const [stats, setStats] = useState({ total: 0, gate: 0, hall: 0 })
 
+    // Mock trend data for sparklines (in real app, fetch this)
+    const mockTrendTotal = Array.from({ length: 20 }, (_, i) => ({ value: 50 + i * 5 + Math.random() * 20 }));
+    const mockTrendGate = Array.from({ length: 20 }, (_, i) => ({ value: i * 3 + Math.random() * 10 }));
+
     useEffect(() => {
-        // In a real app we'd have a specific stats endpoint, 
-        // but here we can just fetch all teams and count client-side for simplicity given N=90
+        // ... (existing fetch)
         fetch('/api/teams').then(r => r.json()).then(data => {
             setStats({
                 total: data.length,
@@ -22,8 +29,9 @@ export default function AdminDashboard() {
 
     return (
         <MotionWrapper className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-slate-900 dark:text-white selection:bg-primary selection:text-black">
-            {/* Top Navigation with 3 Logo Slots */}
+            {/* ... header ... */}
             <header className="sticky top-0 z-50 w-full border-b border-[#393328] bg-background-dark/95 backdrop-blur">
+                {/* ... same header content ... */}
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         {/* Left: College Logo */}
@@ -45,8 +53,8 @@ export default function AdminDashboard() {
                         <div className="flex items-center gap-6">
                             <div className="hidden md:flex items-center gap-3 border-r border-[#393328] pr-6">
                                 <span className="text-xs text-gray-500 font-medium">Sponsored by</span>
-                                <div className="h-8 w-24 rounded bg-white/5 flex items-center justify-center overflow-hidden">
-                                    <span className="text-xs font-bold text-gray-500">CORP INC</span>
+                                <div className="h-10 w-auto rounded bg-white/5 flex items-center justify-center overflow-hidden p-1">
+                                    <img src="/HB1.gif" alt="Sponsor" className="h-full w-auto object-contain" />
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
@@ -96,44 +104,45 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Total Teams KPI */}
                     <FadeIn delay={0.2} className="h-full">
-                        <div className="relative overflow-hidden rounded-xl bg-surface-dark border border-[#393328] p-6 group hover:border-primary/50 transition-all duration-300 h-full">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <div className="relative overflow-hidden rounded-xl bg-surface-dark border border-[#393328] p-6 group hover:border-primary/50 transition-all duration-300 h-full flex flex-col justify-between">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity z-0">
                                 <span className="material-symbols-outlined text-6xl text-white">groups</span>
                             </div>
-                            <div className="flex flex-col gap-1 z-10 relative">
+                            <div className="z-10 relative">
                                 <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">Total Registrations</p>
-                                <div className="flex items-baseline gap-2">
+                                <div className="flex items-baseline gap-2 mt-1">
                                     <h3 className="text-4xl font-bold text-white transition-all duration-1000 ease-out">{stats.total}</h3>
-                                    <span className="text-sm text-green-500 font-medium flex items-center">
-                                        <span className="material-symbols-outlined text-[16px]">arrow_upward</span> +0
+                                    <span className="text-xs text-green-500 font-medium flex items-center bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                                        <span className="material-symbols-outlined text-[14px]">trending_up</span> +12%
                                     </span>
                                 </div>
-                                <div className="w-full bg-gray-800 rounded-full h-1 mt-4">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: "100%" }}
-                                        transition={{ duration: 1, ease: "easeOut" }}
-                                        className="bg-gray-600 h-1 rounded-full"
-                                    />
-                                </div>
-                                <p className="text-xs text-gray-500 mt-2">Teams confirmed via email</p>
                             </div>
+                            <div className="mt-4 h-16 -mx-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                                <SparkLine data={mockTrendTotal} color="#94a3b8" />
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2 z-10 relative">Teams confirmed via email</p>
                         </div>
                     </FadeIn>
 
                     {/* Gate Check-in KPI */}
                     <FadeIn delay={0.3} className="h-full">
-                        <div className="relative overflow-hidden rounded-xl bg-surface-dark border border-[#393328] p-6 group hover:border-primary/50 transition-all duration-300 h-full">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <div className="relative overflow-hidden rounded-xl bg-surface-dark border border-[#393328] p-6 group hover:border-primary/50 transition-all duration-300 h-full flex flex-col justify-between">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity z-0">
                                 <span className="material-symbols-outlined text-6xl text-primary">id_card</span>
                             </div>
-                            <div className="flex flex-col gap-1 z-10 relative">
+                            <div className="z-10 relative">
                                 <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">Gate Check-in</p>
-                                <div className="flex items-baseline gap-2">
+                                <div className="flex items-baseline gap-2 mt-1">
                                     <h3 className="text-4xl font-bold text-primary">{stats.gate}</h3>
                                     <span className="text-sm text-gray-400 font-medium">/ {stats.total}</span>
                                 </div>
-                                <div className="w-full bg-gray-800 rounded-full h-1 mt-4">
+                            </div>
+                            <div className="mt-4 h-16 -mx-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <SparkLine data={mockTrendGate} color="#F59E0B" />
+                            </div>
+                            <div className="flex items-center justify-between mt-2 z-10 relative">
+                                <p className="text-xs text-primary/80 font-medium">{stats.total ? Math.round((stats.gate / stats.total) * 100) : 0}% Arrival Rate</p>
+                                <div className="w-24 bg-gray-800 rounded-full h-1">
                                     <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${stats.total ? (stats.gate / stats.total) * 100 : 0}%` }}
@@ -141,35 +150,10 @@ export default function AdminDashboard() {
                                         className="bg-primary h-1 rounded-full shadow-[0_0_10px_rgba(242,166,13,0.5)]"
                                     />
                                 </div>
-                                <p className="text-xs text-primary/80 mt-2 font-medium">{stats.total ? Math.round((stats.gate / stats.total) * 100) : 0}% Arrival Rate</p>
                             </div>
                         </div>
                     </FadeIn>
 
-                    {/* Hall Check-in KPI */}
-                    <FadeIn delay={0.4} className="h-full">
-                        <div className="relative overflow-hidden rounded-xl bg-surface-dark border border-[#393328] p-6 group hover:border-primary/50 transition-all duration-300 h-full">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <span className="material-symbols-outlined text-6xl text-orange-400">meeting_room</span>
-                            </div>
-                            <div className="flex flex-col gap-1 z-10 relative">
-                                <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">Hall Check-in</p>
-                                <div className="flex items-baseline gap-2">
-                                    <h3 className="text-4xl font-bold text-white">{stats.hall}</h3>
-                                    <span className="text-sm text-gray-400 font-medium">/ {stats.total}</span>
-                                </div>
-                                <div className="w-full bg-gray-800 rounded-full h-1 mt-4">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${stats.total ? (stats.hall / stats.total) * 100 : 0}%` }}
-                                        transition={{ duration: 1.5, ease: "easeOut" }}
-                                        className="bg-orange-400 h-1 rounded-full"
-                                    />
-                                </div>
-                                <p className="text-xs text-orange-400/80 mt-2 font-medium">{stats.total ? Math.round((stats.hall / stats.total) * 100) : 0}% Seated</p>
-                            </div>
-                        </div>
-                    </FadeIn>
                 </div>
 
                 {/* Main Content Area: Charts & Quick Actions */}
@@ -222,51 +206,6 @@ export default function AdminDashboard() {
                             </div>
                         </FadeIn>
 
-                        {/* Hall Occupancy Chart Card */}
-                        <FadeIn delay={0.6} className="h-full">
-                            <div className="glass-panel rounded-xl p-6 flex flex-col justify-between min-h-[300px] h-full">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white">Hall Occupancy</h3>
-                                        <p className="text-sm text-gray-400">Seats filled vs Capacity</p>
-                                    </div>
-                                    <div className="bg-orange-500/10 text-orange-500 p-2 rounded-lg">
-                                        <span className="material-symbols-outlined">pie_chart</span>
-                                    </div>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center relative">
-                                    <div className="relative w-40 h-40">
-                                        <svg className="w-full h-full" viewBox="0 0 36 36">
-                                            <path className="text-gray-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="3"></path>
-                                            <motion.path
-                                                initial={{ pathLength: 0 }}
-                                                animate={{ pathLength: stats.total ? (stats.hall / stats.total) : 0 }}
-                                                transition={{ duration: 2, ease: "easeOut" }}
-                                                className="text-orange-500"
-                                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="3"
-                                            />
-                                        </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-3xl font-black text-white">{stats.total ? Math.round((stats.hall / stats.total) * 100) : 0}%</span>
-                                            <span className="text-xs text-gray-400 font-medium uppercase">Seated</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mt-4 grid grid-cols-2 gap-4 border-t border-[#393328] pt-4">
-                                    <div className="text-center">
-                                        <p className="text-xs text-gray-500 uppercase font-semibold">Available</p>
-                                        <p className="text-lg font-bold text-gray-300">{stats.total - stats.hall}</p>
-                                    </div>
-                                    <div className="text-center border-l border-[#393328]">
-                                        <p className="text-xs text-gray-500 uppercase font-semibold">Occupied</p>
-                                        <p className="text-lg font-bold text-orange-400">{stats.hall}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </FadeIn>
                     </div>
 
                     {/* Quick Actions & Recent Activity (Right 1/3) */}
@@ -287,15 +226,15 @@ export default function AdminDashboard() {
                                     </a>
                                 </ScaleIn>
                                 <ScaleIn delay={1.0}>
-                                    <a href="/scan/hall" className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-surface-dark border border-[#393328] hover:bg-surface-dark-lighter hover:border-primary/50 hover:shadow-[0_0_15px_rgba(242,166,13,0.15)] transition-all group h-full">
-                                        <span className="material-symbols-outlined text-3xl text-gray-400 group-hover:text-primary transition-colors">domain_verification</span>
-                                        <span className="text-xs font-bold text-gray-300 group-hover:text-white uppercase tracking-wide">Hall Scan</span>
+                                    <a href="/admin/attendance" className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-surface-dark border border-[#393328] hover:bg-surface-dark-lighter hover:border-primary/50 hover:shadow-[0_0_15px_rgba(242,166,13,0.15)] transition-all group h-full">
+                                        <span className="material-symbols-outlined text-3xl text-gray-400 group-hover:text-primary transition-colors">assignment_turned_in</span>
+                                        <span className="text-xs font-bold text-gray-300 group-hover:text-white uppercase tracking-wide">Attendance</span>
                                     </a>
                                 </ScaleIn>
                                 <ScaleIn delay={1.1}>
-                                    <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-surface-dark border border-[#393328] hover:bg-surface-dark-lighter hover:border-primary/50 hover:shadow-[0_0_15px_rgba(242,166,13,0.15)] transition-all group h-full w-full">
+                                    <button className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-surface-dark border border-[#393328] hover:bg-surface-dark-lighter hover:border-primary/50 hover:shadow-[0_0_15px_rgba(242,166,13,0.15)] transition-all group h-full w-full col-span-2">
                                         <span className="material-symbols-outlined text-3xl text-gray-400 group-hover:text-primary transition-colors">download</span>
-                                        <span className="text-xs font-bold text-gray-300 group-hover:text-white uppercase tracking-wide">Export</span>
+                                        <span className="text-xs font-bold text-gray-300 group-hover:text-white uppercase tracking-wide">Export Data</span>
                                     </button>
                                 </ScaleIn>
                             </div>

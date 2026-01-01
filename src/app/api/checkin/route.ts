@@ -5,10 +5,10 @@ import { Team, CheckinLog } from '@/lib/db/models';
 export async function POST(request: Request) {
     try {
         await connectToDatabase();
-        const { teamId, token, type, handledBy } = await request.json(); // type = "GATE" or "HALL"
+        const { teamId, token, type, handledBy, presentMembers } = await request.json(); // type = "GATE"
 
-        if (!['GATE', 'HALL'].includes(type)) {
-            return NextResponse.json({ error: 'Invalid check-in type' }, { status: 400 });
+        if (type !== 'GATE') {
+            return NextResponse.json({ error: 'Invalid check-in type. Only GATE is supported.' }, { status: 400 });
         }
 
         const team = await Team.findOne({ teamId });
@@ -17,69 +17,37 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Team not found' }, { status: 404 });
         }
 
-        if (token && team.token !== token) {
-            return NextResponse.json({ error: 'Invalid QR Token' }, { status: 403 });
+        if (token && team.token) {
+            // Basic token matching if provided
+            if (team.token !== token) {
+                return NextResponse.json({ error: 'Invalid QR Token' }, { status: 403 });
+            }
         }
 
-        const now = new Date(); // Use Date object for Mongoose
+        const now = new Date();
 
-        // Logic for GATE
-        if (type === 'GATE') {
-            if (team.gateCheckIn) {
-                return NextResponse.json({
-                    error: `Already checked in at Gate at ${new Date(team.gateCheckInTime).toLocaleTimeString()}`,
-                    alreadyCheckedIn: true,
-                    team
-                }, { status: 409 });
-            }
-
-            team.gateCheckIn = true;
-            team.gateCheckInTime = now;
-            await team.save();
-
-            // Log
-            await CheckinLog.create({
-                teamId,
-                checkpoint: 'GATE',
-                handledBy: handledBy || 'Unknown',
-                timestamp: now
-            });
-
-            return NextResponse.json({ success: true, team });
+        if (team.gateCheckIn) {
+            return NextResponse.json({
+                error: `Already checked in at Gate at ${new Date(team.gateCheckInTime).toLocaleTimeString()}`,
+                alreadyCheckedIn: true,
+                team
+            }, { status: 409 });
         }
 
-        // Logic for HALL
-        if (type === 'HALL') {
-            if (!team.gateCheckIn) {
-                return NextResponse.json({
-                    error: 'Gate entry not completed. Please go to main gate first.',
-                    gateMissing: true,
-                    team
-                }, { status: 400 });
-            }
+        team.gateCheckIn = true;
+        team.gateCheckInTime = now;
+        team.presentMembers = presentMembers || []; // Save the list of members present
+        await team.save();
 
-            if (team.hallCheckIn) {
-                return NextResponse.json({
-                    error: `Already checked in at Hall at ${new Date(team.hallCheckInTime).toLocaleTimeString()}`,
-                    alreadyCheckedIn: true,
-                    team
-                }, { status: 409 });
-            }
+        // Log
+        await CheckinLog.create({
+            teamId,
+            checkpoint: 'GATE',
+            handledBy: handledBy || 'Unknown',
+            timestamp: now
+        });
 
-            team.hallCheckIn = true;
-            team.hallCheckInTime = now;
-            await team.save();
-
-            // Log
-            await CheckinLog.create({
-                teamId,
-                checkpoint: 'HALL',
-                handledBy: handledBy || 'Unknown',
-                timestamp: now
-            });
-
-            return NextResponse.json({ success: true, team });
-        }
+        return NextResponse.json({ success: true, team });
 
     } catch (error) {
         console.error("Check-in Error:", error);

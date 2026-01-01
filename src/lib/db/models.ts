@@ -19,10 +19,12 @@ const TeamSchema = new Schema({
     members: { type: String }, // Storing as JSON string to match previous structure, or could be Array
     token: { type: String, unique: true },
     qrCodeUrl: { type: String },
+    seatNumber: { type: String },
 
     // Check-in Status
     gateCheckIn: { type: Boolean, default: false },
     gateCheckInTime: { type: Date },
+    presentMembers: { type: [String], default: [] }, // Members present at check-in
 
     hallCheckIn: { type: Boolean, default: false },
     hallCheckInTime: { type: Date },

@@ -51,17 +51,24 @@ export async function PUT(request: Request) {
     try {
         await connectToDatabase();
         const body = await request.json();
-        const { teamId, name, college, place, track, members } = body;
+        const { teamId, name, college, place, track, members, gateCheckIn, gateCheckInTime, presentMembers, seatNumber } = body;
+
+        const updateData: any = {};
+        if (name !== undefined) updateData.name = name;
+        if (college !== undefined) updateData.college = college;
+        if (place !== undefined) updateData.place = place;
+        if (track !== undefined) updateData.track = track;
+        if (members !== undefined) updateData.members = typeof members === 'string' ? members : JSON.stringify(members);
+        if (gateCheckIn !== undefined) updateData.gateCheckIn = gateCheckIn;
+        if (gateCheckInTime !== undefined) updateData.gateCheckInTime = gateCheckInTime;
+        if (presentMembers !== undefined) updateData.presentMembers = presentMembers;
+        if (seatNumber !== undefined) updateData.seatNumber = seatNumber;
+
+        console.log("Updating team:", teamId, "Payload:", updateData);
 
         const updatedTeam = await Team.findOneAndUpdate(
             { teamId },
-            {
-                name,
-                college,
-                place,
-                track,
-                members: typeof members === 'string' ? members : JSON.stringify(members),
-            },
+            updateData,
             { new: true } // Return updated doc
         );
 
